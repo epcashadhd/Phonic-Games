@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Phonics 聽力特訓: A 與 I</title>
+    <style>
+        /* --- 手機/平板優化樣式 --- */
+        * {
+            box-sizing: border-box; /* 確保邊框不會撐大元素 */
+            -webkit-tap-highlight-color: transparent; /* 移除 iOS 點擊時的灰色背景 */
+        }
+
+        body {
+            font-family: "PingFang HK", "Microsoft JhengHei", "Varela Round", sans-serif;
+            background-color: #E0F2F1;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            /* 防止手機雙擊縮放 */
+            touch-action: manipulation; 
+        }
+
+        .container {
+            background-color: white;
+            width: 100%;
+            max-width: 600px;
+            border-radius: 30px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            border: 6px solid #80CBC4;
+            position: relative;
+        }
+
+        /* 頂部資訊欄 */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1em; /* 手機上字體稍微調小 */
+            color: #00796B;
+            font-weight: bold;
+            margin-bottom: 15px;
+            background: #E0F2F1;
+            padding: 10px;
+            border-radius: 15px;
+        }
+
+        /* 1. 發音按鈕 (大問號) - 手機版適應 */
+        .sound-btn {
+            width: 110px;
+            height: 110px;
+            background: linear-gradient(135deg, #FF7043, #E64A19);
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 6px 0 #BF360C;
+            margin: 10px auto;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.1s;
+        }
+
+        .sound-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 3px 0 #BF360C;
+        }
+
+        .question-mark {
+            font-size: 60px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .playing { animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        /* 2. 選項區域 - 使用 Flexbox 自動換行 */
+        .choices-area {
+            display: flex;
+            flex-wrap: wrap; 
+            justify-content: center;
+            gap: 15px; /* 按鈕間距 */
+            margin-top: 20px;
+            margin-bottom: 20px;
+            min-height: 100px;
+        }
+
+        /* 字母卡片 - 手機版優化 */
+        .choice-card {
+            background: white;
+            border: 3px solid #4DB6AC;
+            /* 讓按鈕大小在手機上更靈活 */
+            width: 80px; 
+            height: 80px;
+            border-radius: 15px;
+            font-size: 40px;
+            color: #00796B;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 5px 0 #00695C;
+            transition: all 0.1s;
+            font-family: "Comic Sans MS", cursive;
+            user-select: none; /* 防止選取文字 */
+        }
+
+        .choice-card:active { transform: translateY(5px); box-shadow: none; }
+
+        /* 對錯樣式 */
+        .correct-bg {
+            background-color: #C8E6C9 !important;
+            border-color: #4CAF50 !important;
+            color: #2E7D32 !important;
+            box-shadow: 0 5px 0 #2E7D32 !important;
+        }
+        
+        .wrong-shake {
+            animation: shake 0.4s;
+            background-color: #FFCDD2 !important;
+            border-color: #F44336 !important;
+        }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* 下一題按鈕 - 更適合手指點擊 */
+        .next-btn {
+            background-color: #009688;
+            color: white;
+            border: none;
+            padding: 15px 40px; /* 加大點擊範圍 */
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #004D40;
+            display: none;
+            margin: 10px auto;
+            width: 80%; /* 手機上按鈕寬一點 */
+            max-width: 300px;
+            font-family: "PingFang HK", "Microsoft JhengHei", sans-serif;
+        }
+        .next-btn.show { display: block; animation: popIn 0.3s; }
+        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+
+        /* 開始畫面遮罩 */
+        #start-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.98); z-index: 100;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center; border-radius: 30px;
+            padding: 20px;
+        }
+        .big-start-btn {
+            background: #FF5722; color: white; border: none;
+            padding: 20px 60px; font-size: 1.5em; border-radius: 50px;
+            cursor: pointer; box-shadow: 0 8px 0 #BF360C;
+            font-family: "PingFang HK", "Microsoft JhengHei", sans-serif;
+            width: 80%;
+            max-width: 300px;
+        }
+
+        /* 針對超小螢幕手機 (如 iPhone SE) 的微調 */
+        @media (max-width: 380px) {
+            .choice-card { width: 65px; height: 65px; font-size: 30px; }
+            .sound-btn { width: 90px; height: 90px; }
+            .question-mark { font-size: 45px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="start-overlay">
+            <h1 style="color:#FF5722; margin-bottom: 10px;">Phonics 聽力特訓</h1>
+            <p style="font-size:1.1em; color:#555; margin-bottom: 30px;">
+                請將聲音打開 🔊<br>
+                分辨 <b>/a/</b> 與 <b>/i/</b>
+            </p>
+            <button class="big-start-btn" onclick="startGame()">開始遊戲 ▶️</button>
+        </div>
+
+        <div class="top-bar">
+            <span>第 <span id="q-num">1</span> / 15 題</span>
+            <span>得分: <span id="tick-count">0</span> ✅</span>
+        </div>
+
+        <button class="sound-btn" id="speakerBtn" onclick="playSound()">
+            <span class="question-mark">?</span>
+        </button>
+        <p style="color:#90A4AE; font-size:0.9em; margin-top: 5px;">點擊聽聲音</p>
+
+        <div class="choices-area" id="choices-container"></div>
+
+        <div id="feedback" style="height:30px; font-size:1.2em; font-weight:bold; color:#009688; margin-bottom:10px;"></div>
+
+        <button class="next-btn" id="nextBtn" onclick="nextQuestion()">下一題 ➡️</button>
+
+        <audio id="player" playsinline></audio>
+    </div>
+
+    <script>
+        // --- 遊戲邏輯 ---
+        let currentQuestionNum = 0;
+        let ticks = 0;
+        let currentTargetSound = ""; 
+        let isRoundActive = true;
+        
+        // 字母庫
+        const allDistractors = "bcdefghjklmnopqrstuvwxyz".split(""); 
+
+        function startGame() {
+            // iOS Hack: 必須在使用者第一次點擊時，主動與 audio 互動一次
+            // 這樣瀏覽器才會允許之後播放聲音
+            const player = document.getElementById('player');
+            player.src = ""; 
+            player.load(); 
+
+            document.getElementById('start-overlay').style.display = 'none';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            currentQuestionNum++;
+            
+            if (currentQuestionNum > 15) {
+                finishGame();
+                return;
+            }
+
+            // 重置介面
+            isRoundActive = true;
+            document.getElementById('q-num').innerText = currentQuestionNum;
+            document.getElementById('feedback').innerText = "";
+            document.getElementById('nextBtn').classList.remove('show');
+            const container = document.getElementById('choices-container');
+            container.innerHTML = ""; 
+
+            // 1. 決定題目目標
+            currentTargetSound = Math.random() < 0.5 ? 'a' : 'i';
+            
+            // 預先載入音頻
+            const player = document.getElementById('player');
+            player.src = currentTargetSound + ".mp3";
+            player.load(); // 確保手機端準備好
+
+            // 2. 決定選項
+            let options = ['a', 'i'];
+
+            // 根據題號加入干擾項
+            let numExtra = 0;
+            if (currentQuestionNum >= 6 && currentQuestionNum <= 10) numExtra = 1;
+            if (currentQuestionNum >= 11) numExtra = 3;
+
+            if (numExtra > 0) {
+                const shuffled = allDistractors.sort(() => 0.5 - Math.random());
+                options = options.concat(shuffled.slice(0, numExtra));
+            }
+
+            options.sort(() => 0.5 - Math.random());
+
+            // 3. 生成按鈕
+            options.forEach(letter => {
+                const btn = document.createElement('div');
+                btn.className = 'choice-card';
+                btn.innerText = letter;
+                btn.id = 'btn-' + letter;
+                
+                // 支援觸控與點擊
+                btn.onclick = () => checkAnswer(letter);
+                
+                container.appendChild(btn);
+            });
+        }
+
+        function playSound() {
+            const btn = document.getElementById('speakerBtn');
+            const player = document.getElementById('player');
+            
+            btn.classList.add('playing');
+            
+            // 確保每次點擊都重新載入播放（解決部分 Android 問題）
+            if (player.readyState === 0) player.load();
+
+            player.play().then(() => {
+                player.onended = () => btn.classList.remove('playing');
+            }).catch((e) => {
+                console.log(e);
+                btn.classList.remove('playing');
+                // 如果手機版失敗，通常是因為檔案路徑或瀏覽器權限
+                // alert("請點擊開始按鈕來啟動音效權限"); 
+            });
+        }
+
+        function checkAnswer(choice) {
+            if (!isRoundActive) return;
+
+            const btn = document.getElementById('btn-' + choice);
+
+            if (choice === currentTargetSound) {
+                // 答對
+                isRoundActive = false;
+                btn.classList.add('correct-bg');
+                document.getElementById('feedback').innerText = "答對了！🎉";
+                
+                ticks++;
+                document.getElementById('tick-count').innerText = ticks;
+                document.getElementById('nextBtn').classList.add('show');
+            } else {
+                // 答錯
+                btn.classList.add('wrong-shake');
+                document.getElementById('feedback').innerText = "再試一次！";
+                
+                setTimeout(() => {
+                    btn.classList.remove('wrong-shake');
+                }, 400);
+
+                setTimeout(playSound, 300);
+            }
+        }
+
+        function finishGame() {
+            const container = document.querySelector('.container');
+            container.innerHTML = `
+                <h1 style="color:#FF7043">挑戰完成！</h1>
+                <div style="font-size:5em; margin:20px;">🏆</div>
+                <p style="font-size:1.3em; color:#555;">你的成績： <br> <span style="color:#009688; font-size:1.5em; font-weight:bold;">${ticks} / 15</span> 分</p>
+                <button class="next-btn show" onclick="location.reload()" style="position:static; margin-top:30px;">再玩一次 🔄</button>
+            `;
+        }
+    </script>
+</body>
+</html>
