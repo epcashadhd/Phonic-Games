@@ -50,7 +50,7 @@
         }
         .btn-challenge:active { transform: translateY(4px); box-shadow: 0 2px 0 #E65100; }
 
-        /* 跳過按鈕 (New) */
+        /* 跳過按鈕 */
         .skip-btn {
             background: transparent;
             border: 2px solid #B0BEC5;
@@ -325,36 +325,42 @@
         let q1Wrong = false;
         let q2Wrong = false;
 
-        // --- 新增：挑戰模式變數 ---
+        // --- 挑戰模式變數 ---
         const challengePool = ['m','o','t','d','n','w','a','i'];
         
         // ==========================================
-        //  題目資料 (請確保圖片放在同一資料夾)
+        //  題目資料
+        //  - img: 本地圖片 (apple.jpg)
+        //  - soundUrl: 網上聲音 (Google Translate TTS)
         // ==========================================
         const challengeData = [
             { 
                 id: 'apple', 
                 word: '_ p p l e', 
                 answer: 'a', 
-                img: 'apple.jpg' 
+                img: 'apple.jpg',
+                soundUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=apple&tl=en'
             },
             { 
                 id: 'ink',   
                 word: '_ n k',     
                 answer: 'i', 
-                img: 'ink.jpg'   
+                img: 'ink.jpg',
+                soundUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=ink&tl=en'
             },
             { 
                 id: 'ant',   
                 word: '_ n t',     
                 answer: 'a', 
-                img: 'ant.jpg'   
+                img: 'ant.jpg',
+                soundUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=ant&tl=en'
             },
             { 
                 id: 'igloo', 
                 word: '_ g l o o', 
                 answer: 'i', 
-                img: 'igloo.jpg' 
+                img: 'igloo.jpg',
+                soundUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=igloo&tl=en'
             }
         ];
 
@@ -362,8 +368,6 @@
         let currentChallengeIdx = 0;
         let challengeScore = 0;
         let isChallengeRoundActive = false;
-        let currentChallengeAnswer = ""; 
-
 
         function fullRestart() {
             currentQuestionNum = 0;
@@ -397,9 +401,8 @@
             nextQuestion(); 
         }
 
-        // 新增：跳過 15 題中的某一題
+        // 跳過 15 題中的某一題
         function skipQuestion() {
-            // 跳過視同放棄該題得分，直接進入下一題流程
             checkProgression();
         }
 
@@ -466,7 +469,6 @@
                 ticks++;
                 document.getElementById('tick-count').innerText = ticks;
 
-                // 第 4 題 和 第 10 題 顯示強力彈窗
                 if (currentQuestionNum === 4 || currentQuestionNum === 10) {
                     const praises = [
                         {t: "做得好！", e: "👍"}, {t: "繼續努力！", e: "🔥"}, 
@@ -541,7 +543,7 @@
             loadChallengeQuestion();
         }
 
-        // 新增：挑戰題的跳過功能
+        // 挑戰題的跳過功能
         function skipChallengeQuestion() {
             currentChallengeIdx++;
             loadChallengeQuestion();
@@ -555,7 +557,6 @@
 
             isChallengeRoundActive = true;
             const q = challengeQueue[currentChallengeIdx];
-            currentChallengeAnswer = q.answer; // for sound hint
 
             // 更新 UI
             document.getElementById('c-q-num').innerText = currentChallengeIdx + 1;
@@ -585,9 +586,14 @@
             });
         }
 
+        // 播放網上連結的聲音 (Read from .soundUrl)
         function playChallengeHint() {
             const btn = document.getElementById('challenge-hint-btn');
-            player.src = currentChallengeAnswer + ".mp3";
+            
+            // 讀取當前題目的 soundUrl
+            const currentQ = challengeQueue[currentChallengeIdx];
+            player.src = currentQ.soundUrl;
+            
             btn.classList.add('playing');
             if(player.readyState === 0) player.load();
             player.play().then(() => {
@@ -614,18 +620,15 @@
                 feedback.style.color = "green";
                 feedback.innerText = "Correct! ✅";
 
-                // ==========================
-                // 新增：填入正確字母，顯示完整單字
-                // ==========================
+                // 填入正確字母，顯示完整單字
                 const wordElement = document.getElementById('challenge-word');
-                // 將底線 _ 替換成選中的正確字母
                 wordElement.innerText = wordElement.innerText.replace('_', selected);
 
                 // 自動下一題
                 setTimeout(() => {
                     currentChallengeIdx++;
                     loadChallengeQuestion();
-                }, 1500); // 稍微加長一點時間讓學生看到完整的字
+                }, 1500); 
 
             } else {
                 // 答錯
