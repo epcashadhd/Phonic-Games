@@ -263,7 +263,7 @@
         <p style="font-size:1em; color:#888;">總得分： <span id="final-score"></span> / 15</p>
         
         <div style="margin-top: 20px; border-top: 2px dashed #ccc; padding-top: 15px; width: 100%;">
-            <p style="color: #333; font-weight: bold;">問學生挑唔挑戰自己？</p>
+            <p style="color: #333; font-weight: bold;">挑戰自己嗎？</p>
             <button class="btn-challenge" onclick="startChallenge()">挑戰自己！🚀</button>
         </div>
     </div>
@@ -587,26 +587,36 @@
         }
 
         // ==========================================
-        //  修改處：使用瀏覽器內建發音 (SpeechSynthesis)
+        //  發音修復：解決 GitHub 無聲問題 (Garbage Collection Fix)
         // ==========================================
         function playChallengeHint() {
             const btn = document.getElementById('challenge-hint-btn');
             
-            // 獲取當前題目要讀的字 (speakText)
+            // 1. 停止之前的發音
+            window.speechSynthesis.cancel();
+
+            // 獲取文字
             const textToSpeak = challengeQueue[currentChallengeIdx].speakText;
             
-            // 建立語音請求
+            // 2. 建立發音物件
             const utterance = new SpeechSynthesisUtterance(textToSpeak);
-            utterance.lang = 'en-US'; // 設定為美式英語
-            utterance.rate = 0.9;     // 語速稍微慢一點點
+            utterance.lang = 'en-US'; 
+            utterance.rate = 0.9;
+
+            // *** 關鍵修改：將物件綁定到 window，防止被瀏覽器當垃圾清理掉 ***
+            window.currentUtterance = utterance; 
 
             btn.classList.add('playing');
             
-            // 開始朗讀
+            // 3. 播放
             window.speechSynthesis.speak(utterance);
 
-            // 當朗讀結束時移除動畫
             utterance.onend = function() {
+                btn.classList.remove('playing');
+            };
+            
+            utterance.onerror = function() {
+                console.log("Speech Error");
                 btn.classList.remove('playing');
             };
         }
