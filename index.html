@@ -331,7 +331,7 @@
         // ==========================================
         //  題目資料
         //  - img: 本地圖片 (apple.jpg)
-        //  - soundUrl: 網上聲音 (Google Translate TTS)
+        //  - speakText: 讓瀏覽器讀出的單字
         // ==========================================
         const challengeData = [
             { 
@@ -339,28 +339,28 @@
                 word: '_ p p l e', 
                 answer: 'a', 
                 img: 'apple.jpg',
-                soundUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=apple&tl=en'
+                speakText: 'Apple'
             },
             { 
                 id: 'ink',   
                 word: '_ n k',     
                 answer: 'i', 
                 img: 'ink.jpg',
-                soundUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=ink&tl=en'
+                speakText: 'Ink'
             },
             { 
                 id: 'ant',   
                 word: '_ n t',     
                 answer: 'a', 
                 img: 'ant.jpg',
-                soundUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=ant&tl=en'
+                speakText: 'Ant'
             },
             { 
                 id: 'igloo', 
                 word: '_ g l o o', 
                 answer: 'i', 
                 img: 'igloo.jpg',
-                soundUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=igloo&tl=en'
+                speakText: 'Igloo'
             }
         ];
 
@@ -586,22 +586,29 @@
             });
         }
 
-        // 播放網上連結的聲音 (Read from .soundUrl)
+        // ==========================================
+        //  修改處：使用瀏覽器內建發音 (SpeechSynthesis)
+        // ==========================================
         function playChallengeHint() {
             const btn = document.getElementById('challenge-hint-btn');
             
-            // 讀取當前題目的 soundUrl
-            const currentQ = challengeQueue[currentChallengeIdx];
-            player.src = currentQ.soundUrl;
+            // 獲取當前題目要讀的字 (speakText)
+            const textToSpeak = challengeQueue[currentChallengeIdx].speakText;
             
+            // 建立語音請求
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            utterance.lang = 'en-US'; // 設定為美式英語
+            utterance.rate = 0.9;     // 語速稍微慢一點點
+
             btn.classList.add('playing');
-            if(player.readyState === 0) player.load();
-            player.play().then(() => {
-                player.onended = () => btn.classList.remove('playing');
-            }).catch(e => { 
-                console.log(e); 
-                btn.classList.remove('playing'); 
-            });
+            
+            // 開始朗讀
+            window.speechSynthesis.speak(utterance);
+
+            // 當朗讀結束時移除動畫
+            utterance.onend = function() {
+                btn.classList.remove('playing');
+            };
         }
 
         function checkChallengeAnswer(selected, correct) {
