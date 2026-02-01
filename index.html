@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>親子字母「聲」學堂</title>
     <style>
-        /* --- 全局樣式 --- */
+        /* --- 全局樣式 (還原為舒適的卡片風格) --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
             font-family: "PingFang HK", "Microsoft JhengHei", "Varela Round", sans-serif;
             background-color: #E0F7FA;
             margin: 0; padding: 20px;
             display: flex; justify-content: center; align-items: center;
-            min-height: 100vh; touch-action: manipulation; overflow: hidden;
+            min-height: 100vh; touch-action: manipulation; 
         }
 
         .card {
@@ -22,7 +22,7 @@
             text-align: center; border: 6px solid #4DD0E1;
             position: relative;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            max-height: 95vh; overflow-y: auto;
+            /* 讓內容多時自然延伸，不強制擠壓 */
         }
         .hidden { display: none !important; }
 
@@ -40,10 +40,10 @@
         }
         .btn-primary:active { transform: translateY(4px); box-shadow: 0 2px 0 #004D40; }
 
-        /* 目錄頁按鈕樣式 */
+        /* --- 目錄頁樣式 --- */
         .menu-grid {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr; /* 單列，保持美觀 */
             gap: 15px;
             width: 100%;
             margin-top: 20px;
@@ -61,6 +61,7 @@
             transition: all 0.1s;
         }
         .menu-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #0097A7; }
+        
         .menu-btn.special {
             background: #FFF3E0;
             border-color: #FF9800;
@@ -75,10 +76,10 @@
             cursor: not-allowed;
         }
 
-        /* 溫習區格子樣式 */
+        /* --- 溫習區樣式 --- */
         .revision-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(4, 1fr); /* 4列 */
             gap: 10px;
             width: 100%;
             margin-bottom: 20px;
@@ -95,6 +96,7 @@
             font-weight: bold;
         }
         .rev-card:active { background: #81D4FA; transform: scale(0.95); }
+
 
         /* 挑戰按鈕樣式 */
         .btn-challenge {
@@ -121,7 +123,7 @@
         }
         .skip-btn:hover { background-color: #ECEFF1; }
 
-        /* 重來/返回目錄按鈕 */
+        /* 重來/返回按鈕 */
         .back-btn {
             position: absolute; top: 15px; left: 15px;
             width: 45px; height: 45px; border-radius: 50%;
@@ -423,12 +425,11 @@
         function goToMenu() {
             hideAllScreens();
             document.getElementById('screen-menu').classList.remove('hidden');
-            // 停止任何正在播放的語音
             window.speechSynthesis.cancel();
             player.pause();
         }
 
-        // --- 溫習區 (Revision Session) 邏輯 ---
+        // --- 溫習區邏輯 ---
         const revisionOrder = [
             'a','i','b','t','n','f','l','o','d','h','p','g',
             's','u','k','m','r','j','c','e','w','v','x','y','z','qu'
@@ -437,9 +438,7 @@
         function startRevision() {
             hideAllScreens();
             document.getElementById('screen-revision').classList.remove('hidden');
-            
             const container = document.getElementById('revision-container');
-            // 避免重複生成
             if (container.innerHTML.trim() === "") {
                 revisionOrder.forEach(letter => {
                     const btn = document.createElement('div');
@@ -452,26 +451,14 @@
         }
 
         function playRevisionSound(letter) {
-            // 溫習區優先使用 mp3 檔案
             player.src = letter + ".mp3";
-            player.play().catch(e => {
-                console.log("No mp3 found for " + letter + ", make sure file exists.");
-            });
-            
-            // 簡單的點擊動畫效果
+            player.play().catch(e => { console.log("No mp3 found"); });
             event.target.style.backgroundColor = "#B3E5FC";
-            setTimeout(() => {
-                event.target.style.backgroundColor = "#E1F5FE";
-            }, 200);
+            setTimeout(() => { event.target.style.backgroundColor = "#E1F5FE"; }, 200);
         }
 
-
         // --- 任務一 (Mission 1) 邏輯 ---
-        
-        // 原本遊戲的干擾項
         const allDistractors = "bcdefghjklmnopqrstuvwxyz".split(""); 
-        
-        // --- 原本遊戲變數 ---
         let currentQuestionNum = 0;
         let ticks = 0;
         let currentTargetSound = ""; 
@@ -479,12 +466,11 @@
         let q1Wrong = false;
         let q2Wrong = false;
         
-        // 新增：鼓勵機制變數
+        // 鼓勵機制變數
         let nextPraiseThreshold = 0; 
 
         function startMission1() {
-            // 初始化任務一
-            fullRestart(); // 這會重置變數
+            fullRestart(); 
             hideAllScreens();
             document.getElementById('screen-cover').classList.remove('hidden');
         }
@@ -494,7 +480,7 @@
             ticks = 0;
             q1Wrong = false;
             q2Wrong = false;
-            // 初始化下一次鼓勵的時機：第 3 或 4 題
+            // 隨機設定第一次鼓勵在第 3 或 4 題
             nextPraiseThreshold = Math.floor(Math.random() * 2) + 3; 
         }
 
@@ -518,7 +504,6 @@
             nextQuestion(); 
         }
 
-        // 跳過 15 題中的某一題
         function skipQuestion() {
             checkProgression();
         }
@@ -602,7 +587,7 @@
                     document.getElementById('praise-overlay').classList.remove('hidden');
                     document.getElementById('feedback').innerText = ""; 
                     
-                    // 設定下一次鼓勵的時機：當前題號 + 3 或 4
+                    // 設定下一次鼓勵：+3 或 +4
                     nextPraiseThreshold = currentQuestionNum + Math.floor(Math.random() * 2) + 3;
 
                     setTimeout(() => {
@@ -652,42 +637,13 @@
             document.getElementById('final-score').innerText = ticks;
         }
 
-        // ==========================================
-        //  挑戰模式邏輯
-        // ==========================================
-
-        // --- 挑戰模式變數 ---
+        // --- 挑戰模式 ---
         const challengePool = ['m','o','t','d','n','w','a','i'];
-        
         const challengeData = [
-            { 
-                id: 'apple', 
-                word: '_ p p l e', 
-                answer: 'a', 
-                img: 'apple.jpg',
-                speakText: 'Apple'
-            },
-            { 
-                id: 'ink',   
-                word: '_ n k',     
-                answer: 'i', 
-                img: 'ink.jpg',
-                speakText: 'Ink'
-            },
-            { 
-                id: 'ant',   
-                word: '_ n t',     
-                answer: 'a', 
-                img: 'ant.jpg',
-                speakText: 'Ant'
-            },
-            { 
-                id: 'igloo', 
-                word: '_ g l o o', 
-                answer: 'i', 
-                img: 'igloo.jpg',
-                speakText: 'Igloo'
-            }
+            { id: 'apple', word: '_ p p l e', answer: 'a', img: 'apple.jpg', speakText: 'Apple' },
+            { id: 'ink',   word: '_ n k',     answer: 'i', img: 'ink.jpg',   speakText: 'Ink' },
+            { id: 'ant',   word: '_ n t',     answer: 'a', img: 'ant.jpg',   speakText: 'Ant' },
+            { id: 'igloo', word: '_ g l o o', answer: 'i', img: 'igloo.jpg', speakText: 'Igloo' }
         ];
 
         let challengeQueue = [];
@@ -698,15 +654,12 @@
         function startChallenge() {
             hideAllScreens();
             document.getElementById('screen-challenge').classList.remove('hidden');
-
             challengeQueue = [...challengeData].sort(() => 0.5 - Math.random()); 
             currentChallengeIdx = 0;
             challengeScore = 0;
-            
             loadChallengeQuestion();
         }
 
-        // 挑戰題的跳過功能
         function skipChallengeQuestion() {
             currentChallengeIdx++;
             loadChallengeQuestion();
@@ -717,18 +670,15 @@
                 finishChallenge();
                 return;
             }
-
             isChallengeRoundActive = true;
             const q = challengeQueue[currentChallengeIdx];
 
-            // 更新 UI
             document.getElementById('c-q-num').innerText = currentChallengeIdx + 1;
             document.getElementById('c-tick-count').innerText = challengeScore;
             document.getElementById('challenge-img').src = q.img; 
             document.getElementById('challenge-word').innerText = q.word; 
             document.getElementById('challenge-feedback').innerText = "";
 
-            // 產生選項
             const container = document.getElementById('challenge-options-container');
             container.innerHTML = "";
 
@@ -736,7 +686,6 @@
             let possibleDistractors = challengePool.filter(c => c !== q.answer);
             possibleDistractors.sort(() => 0.5 - Math.random());
             options = options.concat(possibleDistractors.slice(0, 3));
-            
             options.sort(() => 0.5 - Math.random());
 
             options.forEach(letter => {
@@ -749,49 +698,26 @@
             });
         }
 
-        // ==========================================
-        //  發音修復：解決 GitHub 無聲問題
-        // ==========================================
         function playChallengeHint() {
             const btn = document.getElementById('challenge-hint-btn');
-            
-            // 1. 停止之前的發音
             window.speechSynthesis.cancel();
-
-            // 獲取文字
             const textToSpeak = challengeQueue[currentChallengeIdx].speakText;
-            
-            // 2. 建立發音物件
             const utterance = new SpeechSynthesisUtterance(textToSpeak);
             utterance.lang = 'en-US'; 
             utterance.rate = 0.9;
-
-            // *** 關鍵修改：將物件綁定到 window，防止被瀏覽器當垃圾清理掉 ***
             window.currentUtterance = utterance; 
-
             btn.classList.add('playing');
-            
-            // 3. 播放
             window.speechSynthesis.speak(utterance);
-
-            utterance.onend = function() {
-                btn.classList.remove('playing');
-            };
-            
-            utterance.onerror = function() {
-                console.log("Speech Error");
-                btn.classList.remove('playing');
-            };
+            utterance.onend = function() { btn.classList.remove('playing'); };
+            utterance.onerror = function() { console.log("Speech Error"); btn.classList.remove('playing'); };
         }
 
         function checkChallengeAnswer(selected, correct) {
             if (!isChallengeRoundActive) return;
-
             const btn = document.getElementById('c-btn-' + selected);
             const feedback = document.getElementById('challenge-feedback');
 
             if (selected === correct) {
-                // 答對
                 isChallengeRoundActive = false;
                 btn.classList.add('correct-bg');
                 challengeScore++;
@@ -800,18 +726,15 @@
                 feedback.style.color = "green";
                 feedback.innerText = "Correct! ✅";
 
-                // 填入正確字母，顯示完整單字
                 const wordElement = document.getElementById('challenge-word');
                 wordElement.innerText = wordElement.innerText.replace('_', selected);
 
-                // 自動下一題
                 setTimeout(() => {
                     currentChallengeIdx++;
                     loadChallengeQuestion();
                 }, 1500); 
 
             } else {
-                // 答錯
                 btn.classList.add('wrong-shake');
                 feedback.style.color = "red";
                 feedback.innerText = "Try again!";
@@ -825,8 +748,7 @@
             document.getElementById('challenge-final-score-display').innerText = challengeScore + " / 4";
         }
 
-        // --- 初始化 ---
-        // 預設回到目錄頁
+        // 初始化
         goToMenu();
 
     </script>
