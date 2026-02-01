@@ -22,6 +22,7 @@
             text-align: center; border: 6px solid #4DD0E1;
             position: relative;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
+            max-height: 95vh; overflow-y: auto;
         }
         .hidden { display: none !important; }
 
@@ -38,6 +39,62 @@
             width: 80%; max-width: 300px; font-family: inherit;
         }
         .btn-primary:active { transform: translateY(4px); box-shadow: 0 2px 0 #004D40; }
+
+        /* 目錄頁按鈕樣式 */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .menu-btn {
+            background: white;
+            border: 3px solid #00BCD4;
+            color: #00838F;
+            padding: 15px;
+            border-radius: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #0097A7;
+            transition: all 0.1s;
+        }
+        .menu-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #0097A7; }
+        .menu-btn.special {
+            background: #FFF3E0;
+            border-color: #FF9800;
+            color: #E65100;
+            box-shadow: 0 4px 0 #F57C00;
+        }
+        .menu-btn.locked {
+            background: #ECEFF1;
+            border-color: #CFD8DC;
+            color: #B0BEC5;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* 溫習區格子樣式 */
+        .revision-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .rev-card {
+            background: #E1F5FE;
+            border: 2px solid #4FC3F7;
+            border-radius: 10px;
+            padding: 15px 0;
+            font-size: 1.5em;
+            color: #0277BD;
+            font-family: "Comic Sans MS", cursive;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .rev-card:active { background: #81D4FA; transform: scale(0.95); }
 
         /* 挑戰按鈕樣式 */
         .btn-challenge {
@@ -64,8 +121,8 @@
         }
         .skip-btn:hover { background-color: #ECEFF1; }
 
-        /* 重來按鈕 */
-        .restart-btn {
+        /* 重來/返回目錄按鈕 */
+        .back-btn {
             position: absolute; top: 15px; left: 15px;
             width: 45px; height: 45px; border-radius: 50%;
             background-color: #ECEFF1; border: 2px solid #B0BEC5;
@@ -200,7 +257,40 @@
 </head>
 <body>
 
-    <div id="screen-cover" class="card">
+    <div id="screen-menu" class="card">
+        <div style="font-size: 4em; margin-bottom: 10px;">🕵️</div>
+        <h1>小小「聲」探</h1>
+        <p>請選擇你的任務</p>
+        
+        <div class="menu-grid">
+            <button class="menu-btn special" onclick="startRevision()">「聲」探任務大集匯</button>
+            
+            <button class="menu-btn" onclick="startMission1()">「聲」探任務一</button>
+            
+            <button class="menu-btn locked" onclick="alert('Coming Soon!')">「聲」探任務二</button>
+            <button class="menu-btn locked" onclick="alert('Coming Soon!')">「聲」探任務三</button>
+            <button class="menu-btn locked" onclick="alert('Coming Soon!')">「聲」探任務四</button>
+            <button class="menu-btn locked" onclick="alert('Coming Soon!')">「聲」探任務五</button>
+            <button class="menu-btn locked" onclick="alert('Coming Soon!')">「聲」探任務六</button>
+            <button class="menu-btn locked" onclick="alert('Coming Soon!')">「聲」探任務七</button>
+            
+            <button class="menu-btn locked" onclick="alert('Coming Soon!')">「聲」探終極任務</button>
+        </div>
+    </div>
+
+    <div id="screen-revision" class="card hidden">
+        <button class="back-btn" onclick="goToMenu()" title="返回目錄">🏠</button>
+        <h2 style="color:#F57C00;">「聲」探任務大集匯</h2>
+        <p>點擊字母，溫習聲音 🔊</p>
+        
+        <div id="revision-container" class="revision-grid">
+            </div>
+        
+        <button class="btn-primary" onclick="goToMenu()">完成溫習 👍</button>
+    </div>
+
+    <div id="screen-cover" class="card hidden">
+        <button class="back-btn" onclick="goToMenu()" title="返回目錄">🏠</button>
         <div style="font-size: 4em; margin-bottom: 10px;">🎓</div>
         <h1>親子字母「聲」學堂</h1>
         <p>準備好耳朵，一起來挑戰！</p>
@@ -208,7 +298,7 @@
     </div>
 
     <div id="screen-training" class="card hidden">
-        <button class="restart-btn" onclick="fullRestart()" title="重新開始">↺</button>
+        <button class="back-btn" onclick="goToMenu()" title="返回目錄">🏠</button>
         <h2 style="color:#009688;">👂 聽力練習室</h2>
         <div class="volume-hint">請先調高音量，準備聽聲音 🔊</div>
         <p>點擊字母聽聽看</p>
@@ -220,7 +310,7 @@
     </div>
 
     <div id="screen-review" class="card hidden">
-        <button class="restart-btn" onclick="fullRestart()" title="重新開始">↺</button>
+        <button class="back-btn" onclick="goToMenu()" title="返回目錄">🏠</button>
         <h2 style="color:#FF7043;">🤔 我們再複習一次</h2>
         <p>不要急，我們重新聽清楚<br>這兩個聲音的分別</p>
         <div class="training-row">
@@ -231,7 +321,7 @@
     </div>
 
     <div id="screen-game" class="card hidden">
-        <button class="restart-btn" onclick="fullRestart()" title="重新開始">↺</button>
+        <button class="back-btn" onclick="goToMenu()" title="返回目錄">🏠</button>
         
         <button class="skip-btn" onclick="skipQuestion()">跳過此題 ⏭️</button>
 
@@ -269,7 +359,7 @@
     </div>
 
     <div id="screen-challenge" class="card hidden">
-        <button class="restart-btn" onclick="fullRestart()" title="退出挑戰">✕</button>
+        <button class="back-btn" onclick="goToMenu()" title="返回目錄">🏠</button>
 
         <button class="skip-btn" onclick="skipChallengeQuestion()">跳過此題 ⏭️</button>
 
@@ -300,7 +390,7 @@
         <p>你真是太厲害了！</p>
         <h2 style="font-size: 3em; margin: 10px 0;" id="challenge-final-score-display"></h2>
         <p>Challenge Score</p>
-        <button class="btn-primary" onclick="fullRestart()">全部重新開始 🔄</button>
+        <button class="btn-primary" onclick="goToMenu()">全部完成 (返回目錄) 🏠</button>
     </div>
 
     <div id="praise-overlay" class="hidden">
@@ -314,6 +404,70 @@
 
     <script>
         const player = document.getElementById('player');
+        
+        // --- 目錄與頁面控制 ---
+        const allScreens = [
+            'screen-menu', 'screen-revision', 'screen-cover', 
+            'screen-training', 'screen-review', 'screen-game', 
+            'screen-result', 'screen-challenge', 'screen-challenge-end'
+        ];
+
+        function hideAllScreens() {
+            allScreens.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.classList.add('hidden');
+            });
+            document.getElementById('praise-overlay').classList.add('hidden');
+        }
+
+        function goToMenu() {
+            hideAllScreens();
+            document.getElementById('screen-menu').classList.remove('hidden');
+            // 停止任何正在播放的語音
+            window.speechSynthesis.cancel();
+            player.pause();
+        }
+
+        // --- 溫習區 (Revision Session) 邏輯 ---
+        const revisionOrder = [
+            'a','i','b','t','n','f','l','o','d','h','p','g',
+            's','u','k','m','r','j','c','e','w','v','x','y','z','qu'
+        ];
+
+        function startRevision() {
+            hideAllScreens();
+            document.getElementById('screen-revision').classList.remove('hidden');
+            
+            const container = document.getElementById('revision-container');
+            // 避免重複生成
+            if (container.innerHTML.trim() === "") {
+                revisionOrder.forEach(letter => {
+                    const btn = document.createElement('div');
+                    btn.className = 'rev-card';
+                    btn.innerText = letter;
+                    btn.onclick = () => playRevisionSound(letter);
+                    container.appendChild(btn);
+                });
+            }
+        }
+
+        function playRevisionSound(letter) {
+            // 溫習區優先使用 mp3 檔案
+            player.src = letter + ".mp3";
+            player.play().catch(e => {
+                console.log("No mp3 found for " + letter + ", make sure file exists.");
+            });
+            
+            // 簡單的點擊動畫效果
+            event.target.style.backgroundColor = "#B3E5FC";
+            setTimeout(() => {
+                event.target.style.backgroundColor = "#E1F5FE";
+            }, 200);
+        }
+
+
+        // --- 任務一 (Mission 1) 邏輯 ---
+        
         // 原本遊戲的干擾項
         const allDistractors = "bcdefghjklmnopqrstuvwxyz".split(""); 
         
@@ -324,67 +478,30 @@
         let isRoundActive = true;
         let q1Wrong = false;
         let q2Wrong = false;
-
-        // --- 挑戰模式變數 ---
-        const challengePool = ['m','o','t','d','n','w','a','i'];
         
-        // ==========================================
-        //  題目資料
-        //  - img: 本地圖片 (apple.jpg)
-        //  - speakText: 讓瀏覽器讀出的單字
-        // ==========================================
-        const challengeData = [
-            { 
-                id: 'apple', 
-                word: '_ p p l e', 
-                answer: 'a', 
-                img: 'apple.jpg',
-                speakText: 'Apple'
-            },
-            { 
-                id: 'ink',   
-                word: '_ n k',     
-                answer: 'i', 
-                img: 'ink.jpg',
-                speakText: 'Ink'
-            },
-            { 
-                id: 'ant',   
-                word: '_ n t',     
-                answer: 'a', 
-                img: 'ant.jpg',
-                speakText: 'Ant'
-            },
-            { 
-                id: 'igloo', 
-                word: '_ g l o o', 
-                answer: 'i', 
-                img: 'igloo.jpg',
-                speakText: 'Igloo'
-            }
-        ];
+        // 新增：鼓勵機制變數
+        let nextPraiseThreshold = 0; 
 
-        let challengeQueue = [];
-        let currentChallengeIdx = 0;
-        let challengeScore = 0;
-        let isChallengeRoundActive = false;
+        function startMission1() {
+            // 初始化任務一
+            fullRestart(); // 這會重置變數
+            hideAllScreens();
+            document.getElementById('screen-cover').classList.remove('hidden');
+        }
 
         function fullRestart() {
             currentQuestionNum = 0;
             ticks = 0;
             q1Wrong = false;
             q2Wrong = false;
-            
-            const screens = ['screen-training', 'screen-game', 'screen-result', 'screen-review', 'screen-challenge', 'screen-challenge-end', 'praise-overlay'];
-            screens.forEach(id => document.getElementById(id).classList.add('hidden'));
-            
-            document.getElementById('screen-cover').classList.remove('hidden');
+            // 初始化下一次鼓勵的時機：第 3 或 4 題
+            nextPraiseThreshold = Math.floor(Math.random() * 2) + 3; 
         }
 
         function goToTraining() {
             player.src = "";
             player.load();
-            document.getElementById('screen-cover').classList.add('hidden');
+            hideAllScreens();
             document.getElementById('screen-training').classList.remove('hidden');
         }
 
@@ -396,7 +513,7 @@
         }
 
         function goToGame() {
-            document.getElementById('screen-training').classList.add('hidden');
+            hideAllScreens();
             document.getElementById('screen-game').classList.remove('hidden');
             nextQuestion(); 
         }
@@ -469,10 +586,14 @@
                 ticks++;
                 document.getElementById('tick-count').innerText = ticks;
 
-                if (currentQuestionNum === 4 || currentQuestionNum === 10) {
+                // 隨機鼓勵機制 (每 3-4 題)
+                if (currentQuestionNum === nextPraiseThreshold) {
                     const praises = [
-                        {t: "做得好！", e: "👍"}, {t: "繼續努力！", e: "🔥"}, 
-                        {t: "好厲害！", e: "🌟"}, {t: "太棒了！", e: "🎉"}, {t: "正確！", e: "✅"}
+                        {t: "做得好！", e: "👍"},
+                        {t: "繼續努力！", e: "🔥"},
+                        {t: "任務即將達成！", e: "🚀"},
+                        {t: "加油！", e: "💪"},
+                        {t: "欣賞你！", e: "🌟"}
                     ];
                     const rp = praises[Math.floor(Math.random() * praises.length)];
                     
@@ -481,6 +602,9 @@
                     document.getElementById('praise-overlay').classList.remove('hidden');
                     document.getElementById('feedback').innerText = ""; 
                     
+                    // 設定下一次鼓勵的時機：當前題號 + 3 或 4
+                    nextPraiseThreshold = currentQuestionNum + Math.floor(Math.random() * 2) + 3;
+
                     setTimeout(() => {
                         document.getElementById('praise-overlay').classList.add('hidden');
                         document.getElementById('nextBtn').classList.add('show');
@@ -512,18 +636,18 @@
         }
 
         function showReviewScreen() {
-            document.getElementById('screen-game').classList.add('hidden');
+            hideAllScreens();
             document.getElementById('screen-review').classList.remove('hidden');
         }
 
         function returnFromReview() {
-            document.getElementById('screen-review').classList.add('hidden');
+            hideAllScreens();
             document.getElementById('screen-game').classList.remove('hidden');
             nextQuestion();
         }
 
         function finishGame() {
-            document.getElementById('screen-game').classList.add('hidden');
+            hideAllScreens();
             document.getElementById('screen-result').classList.remove('hidden');
             document.getElementById('final-score').innerText = ticks;
         }
@@ -532,8 +656,47 @@
         //  挑戰模式邏輯
         // ==========================================
 
+        // --- 挑戰模式變數 ---
+        const challengePool = ['m','o','t','d','n','w','a','i'];
+        
+        const challengeData = [
+            { 
+                id: 'apple', 
+                word: '_ p p l e', 
+                answer: 'a', 
+                img: 'apple.jpg',
+                speakText: 'Apple'
+            },
+            { 
+                id: 'ink',   
+                word: '_ n k',     
+                answer: 'i', 
+                img: 'ink.jpg',
+                speakText: 'Ink'
+            },
+            { 
+                id: 'ant',   
+                word: '_ n t',     
+                answer: 'a', 
+                img: 'ant.jpg',
+                speakText: 'Ant'
+            },
+            { 
+                id: 'igloo', 
+                word: '_ g l o o', 
+                answer: 'i', 
+                img: 'igloo.jpg',
+                speakText: 'Igloo'
+            }
+        ];
+
+        let challengeQueue = [];
+        let currentChallengeIdx = 0;
+        let challengeScore = 0;
+        let isChallengeRoundActive = false;
+
         function startChallenge() {
-            document.getElementById('screen-result').classList.add('hidden');
+            hideAllScreens();
             document.getElementById('screen-challenge').classList.remove('hidden');
 
             challengeQueue = [...challengeData].sort(() => 0.5 - Math.random()); 
@@ -587,7 +750,7 @@
         }
 
         // ==========================================
-        //  發音修復：解決 GitHub 無聲問題 (Garbage Collection Fix)
+        //  發音修復：解決 GitHub 無聲問題
         // ==========================================
         function playChallengeHint() {
             const btn = document.getElementById('challenge-hint-btn');
@@ -657,10 +820,14 @@
         }
 
         function finishChallenge() {
-            document.getElementById('screen-challenge').classList.add('hidden');
+            hideAllScreens();
             document.getElementById('screen-challenge-end').classList.remove('hidden');
             document.getElementById('challenge-final-score-display').innerText = challengeScore + " / 4";
         }
+
+        // --- 初始化 ---
+        // 預設回到目錄頁
+        goToMenu();
 
     </script>
 </body>
